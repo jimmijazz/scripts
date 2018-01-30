@@ -1,0 +1,48 @@
+## Looks at all . If there is one it relooks through
+## all of products to see if there is k
+
+## 1. Check if Discount Code
+discountCodeName = "VALENTINES"; # name of the relevant discount code
+myKeyIdArray = [121599655963]; # ID of all of the products
+discountedProduct = 121599754267;
+isDiscountCode = false; # Is there X in the cart
+numberOfmyKeys = 0;
+
+unless Input.cart.discount_code.nil?  # Check if discount code
+  if Input.cart.discount_code.code == discountCodeName # Right discount code is used
+  
+  # First loop over discount codes to check for all of products
+    Input.cart.line_items.each do |line_item| # loop over discount codes
+      product = line_item.variant.product
+      if myIdArray.include?(product.id)  # Ding Ding Ding. Product is X
+       isDiscountCode = true;
+       numberOfmyKeys += line_item.quantity; # Increment by number of variants
+      end
+    end
+    puts numberOfmyKeys
+    
+    # Now Look for any of the discount products
+    Input.cart.line_items.each do |line_item|
+      
+      product = line_item.variant.product
+      # If is the right Product ID and number of product left to discount !== 0
+      if product.id == discountedProduct && numberOfmyKeys > 0
+        puts line_item.variant.price
+        
+        # Split out to look at all the variants
+        lineQty = line_item.quantity;
+        while lineQty > 1 
+          new_line_item = line_item.split({take: 1.0})
+          Input.cart.line_items << new_line_item 
+          lineQty -= 1
+        end
+         
+        line_item.change_line_price(line_item.variant.price * 0, message: "Valentines Special - One Free for Each Purchased");
+        numberOfmyKeys -= 1
+        puts numberOfmyKeys
+      end
+    end
+  end
+end
+
+Output.cart = Input.cart
