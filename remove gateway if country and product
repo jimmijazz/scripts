@@ -1,0 +1,20 @@
+# This script is useful if a merchant has to exclude certain payment gateways in certain countries, or if they want to exclude COD
+# overseas orders. In SE Asian countries this is common, but can't be facilitated for intl sales.
+
+PAYMENT_METHOD = "Cash on Delivery (COD)"
+DISABLED_COUNTRY_CODES = ['TH'] # If user's address country is in Thailand
+PRODUCT_IDS = [17412227099, 526514716699] # Products that will trigger hiding the payment gateway
+
+if Input.cart.shipping_address and DISABLED_COUNTRY_CODES.include?(Input.cart.shipping_address.country_code)
+  Input.cart.line_items.each do |i|
+    if PRODUCT_IDS.include?(i.variant.product.id)
+      Output.payment_gateways = Input.payment_gateways.delete_if do |payment_gateway|
+          payment_gateway.name == PAYMENT_METHOD
+      end
+    else
+      puts i.variant.product.id
+    end
+  end
+else
+  Output.payment_gateways = Input.payment_gateways
+end
