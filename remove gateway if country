@@ -1,10 +1,15 @@
-PAYMENT_METHOD = ['Cash on Delivery (COD)','PayPal Express Checkout', "Stripe", ] # List of gateways
-DISABLED_COUNTRY_CODES = ['AE','SA','QA','BH','KW','IR','EG','IL','OM'] # If user's address country code == any of these
-if DISABLED_COUNTRY_CODES.include?(Input.cart.shipping_address.country_code)
-  # if country code in the array, remove all gateways listed in PAYMENT_METHOD array
+PAYMENT_METHOD = ['Cash on Delivery (COD)', 'PayPal Express Checkout', 'Stripe'] #This gateway method will ONLY be shown to country codes in the below array
+DISABLED_COUNTRY_CODES = ['AE','SA','QA','BH','KW','IR','EG','IL','OM'] # If user's address country is in Thailand
+if Input.cart.billing_address and DISABLED_COUNTRY_CODES.include?(Input.cart.billing_address.country_code)
     Output.payment_gateways = Input.payment_gateways.delete_if do |payment_gateway|
-    PAYMENT_METHOD.include?(payment_gateway.name)
+      if PAYMENT_METHOD.include?(payment_gateway.name)
+        false
+      else 
+        true
+      end
     end
 else
-    Output.payment_gateways = Input.payment_gateways
+    Output.payment_gateways = Input.payment_gateways.delete_if do |payment_gateway|
+      PAYMENT_METHOD.include?(payment_gateway.name)
+    end
 end
