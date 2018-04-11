@@ -1,0 +1,25 @@
+ # If user's address country is in these country codes gateways will be hidden
+DISABLED_COUNTRY_CODES = ['AE','SA','QA','BH','KW','IR','EG','IL','OM']
+
+# These gateways  will ONLY be shown to middle east countries
+ENABLED_PAYMENT_METHODS_MIDEEAST = ['Cash on Delivery (COD)'] 
+
+# If user is not in mid-east, they will be shown all gateways except the ones listed below
+DISABLED_PAYMENT_METHOD_NON_MIDEEAST = ['Cash on Delivery (COD)'] 
+
+
+# If Disabled Country Codes Includes
+if Input.cart.shipping_address and DISABLED_COUNTRY_CODES.include?(Input.cart.shipping_address.country_code)
+    Output.payment_gateways = Input.payment_gateways.delete_if do |payment_gateway|
+      if ENABLED_PAYMENT_METHODS_MIDEEAST.include?(payment_gateway.name)
+        false
+      else 
+        true
+      end
+    end
+else
+  
+    Output.payment_gateways = Input.payment_gateways.delete_if do |payment_gateway|
+      DISABLED_PAYMENT_METHOD_NON_MIDEEAST.include?(payment_gateway.name)
+    end
+end
