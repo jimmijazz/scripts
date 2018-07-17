@@ -1,0 +1,20 @@
+TAG = "Staff" #customer tag
+MESSAGE = "Free Pickup For Staff" # Additional message
+CUSTOMER = Input.cart.customer
+SHIP = Input.shipping_rates.first.name
+if CUSTOMER
+  if CUSTOMER.tags.include?(TAG)
+  # Remove other shipping rates so there is only one
+   Output.shipping_rates = Input.shipping_rates.delete_if do |shipping_rate|
+     !shipping_rate.name.include?(SHIP)
+   end 
+  
+   Input.shipping_rates.each_with_index do |shipping_rate, index|
+      shipping_rate.change_name("FREE STAFF SHIPPING", { message: "Staff can pick up their orders for free" })
+      shipping_rate.apply_discount(shipping_rate.price, message: MESSAGE)
+   end
+  end
+else
+  Output.shipping_rates = Input.shipping_rates
+end
+
