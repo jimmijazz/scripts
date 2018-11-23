@@ -1,0 +1,37 @@
+Input.cart.line_items.each do |line_item|
+  product = line_item.variant.product
+  next if product.gift_card? #ignore gift cards
+  
+  # apply 10% off to all products unless they meet one of the other conditions
+  if line_item.variant.id == 8682229170228 || line_item.variant.id == 8682252533812 || line_item.variant.product.product_type == "CD>Used" || line_item.variant.product.product_type == "Video>Used DVD" || product.tags.include?('Vinyl>Pre-Loved') || line_item.variant.product.product_type == "Vinyl>Pre-Loved" 
+
+  # Check if the compare at price is less than the normal price (indicating sale). If it is, we ignore the script discounts and just rely on that.
+  # Also means products that are manually discounted won't be impacted by scripts AND won't have extra 10% off
+  if line_item.variant.compare_at_price <= line_item.variant.price
+   # check for turntables. There are only two and it's a manual collection so just update with variant ID
+   if line_item.variant.id == 8682229170228 || line_item.variant.id == 8682252533812
+     line_item.change_line_price(line_item.line_price * (1.0 - ( 31 / 100.0)), message: "31% off for select turntables!")
+    end
+    if line_item.variant.product.product_type == "CD>Used"
+     line_item.change_line_price(line_item.line_price * (1.0 - ( 50 / 100.0)), message: "50% Pre-Loved CD's!")
+   end
+   if line_item.variant.product.product_type == "Video>Used DVD"
+    line_item.change_line_price(line_item.line_price * (1.0 - ( 30 / 100.0)), message: "30% Pre-Loved DVD's!")
+   end
+
+    # Pre-loved vinyl has two seperate collections. One goes off tags, the other type. 
+    if product.tags.include?('Vinyl>Pre-Loved') || line_item.variant.product.product_type == "Vinyl>Pre-Loved"
+      line_item.change_line_price(line_item.line_price * (1.0 - ( 12 / 100.0)), message: "12% off Pre-Loved Vinyl")
+    end
+  end
+  else 
+    # none of the above apply, so 10% off the product
+    # extra check to make sure not further discounting from compare at price
+    if line_item.variant.compare_at_price <= line_item.variant.price
+      line_item.change_line_price(line_item.line_price * (1.0 - ( 10 / 100.0)), message: "10% off for Black Friday / Cyber Monday!")
+    end
+  end
+end
+
+Output.cart = Input.cart
+
