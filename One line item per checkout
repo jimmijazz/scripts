@@ -1,0 +1,4 @@
+Input.cart.line_items.each do |line_item|
+line_item.instance_variable_set(:@quantity, 1) if line_item.quantity > 1
+end
+Output.cart = Input.cart
