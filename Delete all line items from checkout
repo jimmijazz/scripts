@@ -1,0 +1,6 @@
+Input.cart.line_items.delete_if do |line_item|
+  #  Run conditions here to detect if line item should be deleted.
+  # Return true if should be deleted
+ true
+end
+Output.cart = Input.cart
