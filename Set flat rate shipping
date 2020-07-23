@@ -1,0 +1,7 @@
+@flat_rate_cents = 900
+Input.shipping_rates.each do |shipping_rate|
+  flat_rate = Money.new(cents:@flat_rate_cents)
+  shipping_rate.apply_discount((shipping_rate.price - flat_rate) , message: " ")
+end
+
+Output.shipping_rates = Input.shipping_rates
