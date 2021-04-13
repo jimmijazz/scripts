@@ -1,0 +1,10 @@
+# Hide a shipping rate based on the cart weight
+
+SHIPPING_RATE_TO_DELETE = "Cheap Shipping" # Change to the shipping code you want to remove
+WEIGHT_LIMIT = 2500 # In Grams
+
+if Input.cart.total_weight > WEIGHT_LIMIT
+  Output.shipping_rates = Input.shipping_rates.delete_if do |shipping_rate|
+    shipping_rate.name == SHIPPING_RATE_TO_DELETE
+  end
+end
