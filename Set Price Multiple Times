@@ -1,0 +1,27 @@
+# Once a line item price is changed, you can't increase it's price.
+# Note that this script doesn't actually change the price multiple times, it just uses a hash to store what the price should be
+# and then updates them once at the end.
+
+line_item_prices = {} # Store a mutable copy of the line item ID's with a discount valie
+
+Input.cart.line_items.each do |line_item|
+  
+  price_discount = 0.50 # Change it once
+  price_discount = 0.90 # Change it twice
+  
+  if price_discount
+      line_item_prices[line_item.variant.id] = price_discount # Percentage discount
+  end
+
+end
+
+Input.cart.line_items.each do |line_item|
+  # Check if we've changed the price
+  if line_item_prices[line_item.variant.id]
+    price_discount = line_item_prices[line_item.variant.id]
+    # Apply the discount
+    line_item.change_line_price(line_item.original_line_price * price_discount, message: "My Sale")
+  end
+end
+
+Output.cart = Input.cart
