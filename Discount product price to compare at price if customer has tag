@@ -1,0 +1,21 @@
+# Not an official script, please test and use at your own discretion.
+# This script will discount a product to it's compare at price, if the compare at price is lower than the regular price AND the customer has a "Member" tag
+
+
+TAG = "Member" # tag we want to check
+MESSAGE = "Member pricing"
+Customer = Input.cart.customer
+
+if Customer && Customer.tags
+  if Customer.tags.include?(TAG) # check customer has member tag
+      # If yes - discount line items to their to compare at price
+      Input.cart.line_items.each do |line_item|
+        variant = line_item.variant
+        product = line_item.variant.product
+        next if product.gift_card? || (variant.compare_at_price > variant.price) # Check not a gift card or higher compare at price
+        line_item.change_line_price( variant.compare_at_price, message: MESSAGE) # Change the price
+      end
+  end
+end
+
+Output.cart = Input.cart
