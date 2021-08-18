@@ -1,0 +1,27 @@
+/*
+This could be used to track how much a customer spends in a year to reject discount codes or offer promotions
+You also need a Shopify flow that can tag the customer any time a new order is created with the format {{order.createdAt}}--{{order.totalPriceSet.shopMoney.amount}}
+Date needs to be updated each year. It also assume we reset on Jan 1 of each year.
+
+*/
+
+@date = "2021" #This needs to be a string
+
+@customer = Input.cart.customer
+@total_spend = 0
+
+if (@customer)
+  # Iterate over customer's tags
+  @customer.tags.each do |tag|
+    _date = tag.split("-").first # Get the year
+     # Check the year against our date variable at the top
+    if _date === @date
+      # Get the total spend
+      @total_spend += tag.split("--")[1].to_i
+    end
+  end
+  
+  # Here is where you would reject the discount code
+  puts @total_spend
+  
+end
