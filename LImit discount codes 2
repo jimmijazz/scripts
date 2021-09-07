@@ -1,0 +1,33 @@
+# Sets a $ limit across the entire cart based on discount codes.
+# Similar to first version but it doesn't have a default discount amount
+# Setup - create a discount code with the percentage amount you would like applied (10% etc) ie discount_10 to apply max $10
+
+# Discount codes this should apply too. Any discount code with these keywords will be limited
+discount_codes = ["discount", "momo"]
+
+# Set the maximum discount amount
+Discount_percent = 0
+if Input.cart.discount_code
+  
+  # Get the discount code limit
+  Discount_code_details = Input.cart.discount_code.code.split("_")
+  
+  # Check it's the right discount code
+  if discount_codes.include?(Discount_code_details[0])  # We only want to limit certain discount codes
+    Max_discount = Discount_code_details[1].to_i # Get the maximum amount 
+    Input.cart.discount_code.reject(message: " $ #{Max_discount}") # Reject current discount code
+      cart_subtotal_float = Float((Input.cart.subtotal_price.cents / 100).to_s)
+      
+      # Apply the discount across the line items
+      Input.cart.line_items.each do |line_item|
+        if Float((line_item.line_price.cents / 100).to_s) > 0 
+          price = line_item.line_price
+          line_price_float = Float((line_item.line_price.cents / 100).to_s)
+          percentage = 1 - (((line_price_float / cart_subtotal_float) * Float(Max_discount)) / line_price_float)
+          line_item.change_line_price(line_item.line_price * percentage, message: "")
+        end
+      end
+  end
+end
+
+Output.cart = Input.cart
