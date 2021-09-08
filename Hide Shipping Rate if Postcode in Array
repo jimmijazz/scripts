@@ -1,0 +1,17 @@
+zip = Input.cart.shipping_address.zip # The customers ZipCode
+selectedZips = ["4100","4000" ]  # Arrays to hide on condition
+shippingRateToHide = "Offset"
+
+Input.shipping_rates.each do |shipping_rate|  # Iterate over each shipping rate
+  if selectedZips.include?(zip)
+    # Customer's Zip Code is in the array. Show Message
+      Output.shipping_rates = Input.shipping_rates.delete_if do |shipping_rate|
+        shipping_rate.name == shippingRateToHide # Replace with Shipping rate name
+       end
+  else 
+    # Customer's Zip Code is not in array. Discount shipping.
+    # Do something
+  end
+end
+
+Output.shipping_rates = Input.shipping_rates
