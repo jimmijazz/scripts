@@ -1,0 +1,61 @@
+###
+# This script uses a discount code to "trigger" discount logic. 
+# You could define the logic in the discount code name itself (ie discount_10_30), but this is more customer friendly
+# SETUP
+# 1. Create a discount code that discounts $0
+# 2. Define the discount code here
+
+# Caveat is that is still shows an item being "discounted" even though it's zero value. The "discount" total doesn't seem to update either.
+
+
+# Discount codes this should apply too. Any discount code with these keywords will be limited
+discount_codes = {
+  "momo_30" => {"percentage" => 0.2, "limit" => 100 }, # Any discount code with "momo" will discount 10% up to $10 
+  "discount" => 100,
+  "discount2" => 15,
+  "discount_20" => 15
+};
+
+# Set the maximum discount amount
+if Input.cart.discount_code
+  discount_code = Input.cart.discount_code.code
+  if discount_codes.key?(discount_code) # Check if discount code is in our list
+    Code_max_amount = discount_codes[discount_code]["limit"] # Set the total discount amount that we should apply across the cart
+    Percentage = discount_codes[discount_code]["percentage"] # Percentage discount that should be applied 
+    Cart_subtotal = Float((Input.cart.subtotal_price.cents / 100).to_s) # Get initial subtotal price
+  
+    # If the regular discount amount is over the maximum allowed, use the maximum allowed limit set for that code
+    discount_allocation_total = Cart_subtotal * Percentage > Code_max_amount ? Code_max_amount : Cart_subtotal * Percentage
+    discount_allocation_total *= 100 # Convert to cents
+    # puts total_dollar_discount # Dollars worth of discount amount that will be applied
+  
+    puts "Discount allocation total: #{discount_allocation_total}"
+    
+    cart_subtotal_float = Float((Input.cart.subtotal_price.cents / 100).to_s) # Get initial subtotal price
+
+    # The way this works is:
+    # 1. We get the max discount amount
+    # 2. If the full price of the line item is less than what remains in discount_allocation_total we discount the full price
+    # 3. If the full price is more than what's remaining in discount_allocation_total, we just discount what's remaining
+    # 4. Repeat for the next line item
+    # 5. (TODO) Once we know the appropriate total discount, we allocate across line items accordingly
+
+    
+    Input.cart.line_items.each do |line_item|
+      puts discount_allocation_total
+      if discount_allocation_total > 0
+        line_item.line_price.cents # Convert line item price to workable cents ie $18 => 1800
+        if line_item.line_price.cents < discount_allocation_total # Our line item price is less than what's left in our discount pool
+            price_discount = line_item.line_price.cents
+         else 
+          price_discount = discount_allocation_total # line item price is more than what's left in pool. So it gets the rest of the pool
+        end 
+
+        line_item.change_line_price(Money.new(cents: line_item.line_price.cents - price_discount), message: "");
+        discount_allocation_total -= price_discount
+      end
+     end
+   end
+ end
+
+Output.cart = Input.cart
