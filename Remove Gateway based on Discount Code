@@ -1,0 +1,8 @@
+DISCOUNT_CODE = "VICTORIA15" # Discount code to trigger gateway removal
+PAYMENT_GATEWAY = "Bank Deposit" # Gateway to remove
+
+if Input.cart.discount_code && Input.cart.discount_code.code == DISCOUNT_CODE
+  Output.payment_gateways = Input.payment_gateways.delete_if do |gateway|
+    gateway.name == PAYMENT_GATEWAY
+  end
+end
