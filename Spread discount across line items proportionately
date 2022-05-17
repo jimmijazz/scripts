@@ -1,10 +1,16 @@
+
+# If PRODUCT_ID is in cart, discount cart by DISCOUNT_AMOUNT spread out proportionately across all line items
+
+### PARAMETERS TO CUSTOMISE ###
 DISCOUNT_AMOUNT = 10 # Money to discount if product condition met
-PRODUCT_ID = 7328362627094
+PRODUCT_ID = 7328362627094 # Product ID to check for
 DISCOUNT_MESSAGE = "Discount applied"
 PRODUCT_FOUND = false
+#######
 
 cart_subtotal_float = Float((Input.cart.subtotal_price.cents / 100).to_s)
 
+# Check that our product is in the cart
 Input.cart.line_items.each do |line_item|
   product = line_item.variant.product
   next if product.gift_card?
@@ -12,15 +18,15 @@ Input.cart.line_items.each do |line_item|
   PRODUCT_FOUND = true
 end
 
+# Apply discount proportionately across the cart
 Input.cart.line_items.each do |line_item| 
   
-  # Apply discount proportionately across the cart
   line_price_float = Float((line_item.line_price.cents / 100).to_s) # Convert line item money to float
-  line_item_percentage_of_subtotal = 1 - ( line_price_float / cart_subtotal_float )
   
   # Get the percantage off that the new price is from the original price
   percentage = 1 - (((line_price_float / cart_subtotal_float) * DISCOUNT_AMOUNT) / line_price_float)
 
+  # Apply the discount
   line_item.change_line_price(line_item.line_price * percentage, message: "")
 
 end
