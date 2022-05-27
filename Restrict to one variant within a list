@@ -1,0 +1,18 @@
+# List of variant ID's. If any of these ID's are in here, only the first one in the cart will remain
+mutuallyExclusiveVariantIDs = [42050816737302, 42050816770070]
+foundID = false  # Have we already found one of these variant ID's
+
+Input.cart.line_items.each do |line_item|
+  if mutuallyExclusiveVariantIDs.include? line_item.variant.id
+    if foundID == true
+    # We already have a variant from our list in the cart
+    line_item.instance_variable_set(:@quantity, 0)
+    else 
+    # Found our first instance
+    foundID = true
+   end 
+  end
+end
+
+
+Output.cart = Input.cart
