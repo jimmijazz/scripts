@@ -1,0 +1,7 @@
+tag = "hide" # If a Product has this tag we'll remove it from their cart
+
+Input.cart.line_items.delete_if do |line_item|
+  line_item.variant.product.tags.include?(tag)
+end
+
+Output.cart = Input.cart
